@@ -1,0 +1,39 @@
+-- rerunnable
+DROP DATABASE IF EXISTS smart_farm_db;
+CREATE DATABASE smart_farm_db;
+
+-- подключись к БД перед выполнением ниже
+
+CREATE SCHEMA IF NOT EXISTS farm;
+
+-- users
+CREATE TABLE farm.users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10) CHECK (gender IN ('male','female')),
+    created_at DATE DEFAULT CURRENT_DATE
+);
+
+-- sensors
+CREATE TABLE farm.sensors (
+    sensor_id SERIAL PRIMARY KEY,
+    sensor_name VARCHAR(100) NOT NULL,
+    location VARCHAR(100),
+    installed_date DATE CHECK (installed_date > '2026-01-01')
+);
+
+-- measurements
+CREATE TABLE farm.measurements (
+    measurement_id SERIAL PRIMARY KEY,
+    sensor_id INT REFERENCES farm.sensors(sensor_id),
+    value NUMERIC CHECK (value >= 0),
+    measured_at DATE CHECK (measured_at > '2026-01-01')
+);
+
+-- user_devices
+CREATE TABLE farm.user_devices (
+    device_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES farm.users(user_id),
+    sensor_id INT REFERENCES farm.sensors(sensor_id),
+    UNIQUE(user_id, sensor_id)
+);
